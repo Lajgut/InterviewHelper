@@ -16,7 +16,7 @@
 | Careem — Senior SWE | Base ~AED 545K + bonus 2–3 мес | ~45 000+ | ~1М+ | [LeetCode](https://leetcode.com/discuss/compensation/5183472/) |
 | Рынок Senior Android Dubai (общее) | AED 144K–180K/год (низ рынка) | 12 000–15 000 | ~280–350к | Glassdoor (низ рынка — НЕ твой уровень) |
 
-> ⚠️ **Важно:** «12–15k AED/мес» из Glassdoor — это нижний рынок/азиатский аутсорс. **Твоя цель — Careem/ Noon/Talabat/top: 40–50k AED/мес (~1М ₽), 0% налог.** Это кратно выше текущих 500к.
+> ⚠️ **Важно:** «12–15k AED/мес» из Glassdoor — это нижний рынок/азиатский аутсорс. **Твоя цель — Careem/ Noon/Talabat/top: 40–50k AED/мес (~1М ₽), 0% налог.** Это кратно выше текущих 530к.
 
 ---
 

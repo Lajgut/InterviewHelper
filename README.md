@@ -10,7 +10,7 @@
 
 **Кратко:**
 - **Текущая роль:** Тимлид Android-команды в ВК
-- **Текущий доход:** ~500 000 ₽/мес (с премиями)
+- **Текущий доход:** ~530 000 ₽/мес (с премиями)
 - **Стек:** Android (Kotlin/Java)
 - **Уровень:** Tech Lead / Senior
 
@@ -19,7 +19,7 @@
 ## 📌 Два направления поиска
 
 ### 1️⃣ Россия — [`russia/`](./russia/)
-Тимлид Android или Senior-разработчик, **от 550 000 ₽/мес**.
+Тимлид Android или Senior-разработчик, **от 600 000 ₽/мес**.
 - 📊 **Блок 1 — рынок и вилки:** [`russia/01-market-and-sources.md`](./russia/01-market-and-sources.md)
 - 🎯 **Блок 2 — подготовка к собеседованиям:** [`russia/02-interview-prep.md`](./russia/02-interview-prep.md)
 - 💪 **Блок 4 — хард-скиллы (Revolut/Яндекс/Ozon):** [`russia/04-hard-skills-plan.md`](./russia/04-hard-skills-plan.md)
