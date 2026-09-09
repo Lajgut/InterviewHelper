@@ -115,8 +115,25 @@ catch (e: IOException) { fallback }            // только конкретн�
 - observable — ПОСЛЕ изменения, нельзя отменить; vetoable — ДО, может запретить (false)
 - Свой делегат: `ReadWriteProperty` с `getValue`/`setValue`
 
+## 13 · suspend под капотом (Яндекс любит!)
+
+- **CPS**: `suspend fun getUser(): User` → `fun getUser(c: Continuation<User>): Any?` — скрытый параметр-колбэк; возврат = результат ИЛИ `COROUTINE_SUSPENDED`
+- **Continuation** = колбэк `resumeWith(Result<T>)` + context
+- **Физических вызовов** = число реальных приостановок + 1 (быстрые suspend без паузы — всё за один вызов)
+- **State machine**: тело → `switch(label)` в continuation; **локальные переменные — в полях continuation-объекта (heap!), не на стеке**
+- Из обычной функции нельзя — нет continuation-параметра (bridge: launch/runBlocking)
+- **Инверсия стека**: приостановка = unwind стека, resume = новый кадр; глубина живёт в linked-list continuation'ов в heap → нет StackOverflow
+
+## 12 · Coroutines: structured concurrency + Job
+
+- Формула: **отмена — вниз по иерархии, ошибка — вверх**
+- **Job**: падение ребёнка → отменяет родителя → родитель отменяет ВСЕХ детей; исключение выходит наружу → **без CoroutineExceptionHandler — крэш приложения**
+- **SupervisorJob**: падение ребёнка не трогает родителя и братьев. **Умирает только от явного cancel()** — scope жив и переиспользуемый
+- Обычный **Job() завершается сам**, когда завершены все дети → scope дальше непригоден
+- `viewModelScope = SupervisorJob() + Dispatchers.Main.immediate` — одна упавшая корутина не убивает остальные задачи VM
+
 ---
 ## ⏳ ДОПОЛНИТЬ (по мере прохождения моков)
-- [ ] Coroutines + Flow (вт)
+- [ ] Coroutines + Flow — продолжение (вт)
 - [ ] Compose (ср)
 - [ ] Android Core (чт)

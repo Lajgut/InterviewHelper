@@ -55,8 +55,8 @@
 
 | # | Тема | Глубина | Комментарий |
 |---|------|--------|-------------|
-| 1 | Structured concurrency, Scope/Job/SupervisorJob | — | |
-| 2 | suspend под капотом (CPS) | — | |
+| 1 | Structured concurrency, Scope/Job/SupervisorJob | 🟡↑ | Ч1 ✅ суть SC + выгоды (добавить формулу «отмена вниз, ошибка вверх»). Ч2.1 ✅✅ ОБА случая Job/SupervisorJob идеально — ядро темы закрыто. Ч2.2 ❌ lifetime: сказал «scope закроется после завершения корутин» — SupervisorJob живёт до явного cancel, scope B переиспользуемый; Job() в A отравлен (новые launch мгновенно отменяются). Ч3 ✅ viewModelScope + состав (SupervisorJob + Main.immediate). Не упомянул: без CoroutineExceptionHandler исключение в A крэшнет приложение. **Повторить: SupervisorJob умирает только от явного cancel; крэш-кейс** |
+| 2 | suspend под капотом (CPS) | 🔴 | Полный провал: честные «не знаю» на все 4 части (CPS, continuation, state machine, инверсия стека). Тема глубокая, многие senior не знают, но Яндекс спрашивает. Дан эталон: CPS (скрытый параметр Continuation + возврат Any?/COROUTINE_SUSPENDED), state machine (switch(label) в continuation, локальные vars в heap-полях), физвызовы = числу реальных пауз+1, инверсия стека (стек → linked list continuation в heap). **Выучить эталон — будет козырем, отличающим от 90% кандидатов** |
 | 3 | Dispatchers, withContext | — | |
 | 4 | Cancellation (cooperative, NonCancellable) | — | |
 | 5 | Exceptions (Handler, launch vs async) | — | |
