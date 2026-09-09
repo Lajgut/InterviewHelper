@@ -56,7 +56,7 @@ a == b  →  a?.equals(b) ?: (b === null)   // поэтому null-safe, не п
 - **`in` = input / consumer** — только ПРИНИМАЕТ T: `Comparable<in T>`
 - PECS: Producer Extends, Consumer Super
 - `List<out Cat>` → можно как `List<Animal>` ✅ (читаем)
-- **`List<*>`** = «один неизвестный тип»: читать как `Any?` ✅, писать ❌
+- **`List<*>`** = «один неизвестный тип»: читать **только как `Any?`** (НЕ Cat/Animal!), писать ❌ — даже `MutableList<*>` не позволит add. В рантайме информации о типе НЕТ (type erasure) — узнать можно только `is`/кастом по элементу
 - **`List<Any?>`** = «любые вперемешку»: писать ✅
 - Java-массивы ковариантны → `Object[] o = new String[1]; o[0]=42` → **ArrayStoreException**; Kotlin `Array<T>` инвариантен (дыры нет)
 
@@ -103,6 +103,17 @@ catch (e: IOException) { fallback }            // только конкретн�
 - **Platform types** `String!` — из Java, null-безопасности нет → NPE возможен
 - Коллекции: `map/filter` на List — выполняются сразу (eager), каждая аллоцирует
 - `componentN` → деструктуризация: `val (a, b) = pair`
+
+## 11 · Иерархия типов (Any / Unit / Nothing / Throwable)
+
+- **Any** = родитель всех не-null типов = наш «Object» (на JVM → java.lang.Object). Методы: equals, hashCode, toString
+- **Unit** = «вернулось, но без значения» (тип с 1 инстансом); `() -> Unit` совместим с любой лямбдой
+- **Nothing** = НИКОГДА не вернётся (throw, TODO(), exitProcess); подтип ВСЕХ типов → `if (ok) 1 else throw E` — тип Int; `emptyList<Nothing>` → `List<T>` для любого T
+- **Throwable → Exception (ловим) / Error (НЕ ловим: OOM, StackOverflow)**. Checked-исключений в Kotlin НЕТ
+- **lazy default (SYNCHRONIZED): лямбда выполнится ОДИН РАЗ** — остальные ждут и берут кеш (double-checked). PUBLICATION — параллельные вычисления, кешируется первый результат
+- Проверка lateinit: **`::tracker.isInitialized`** (ссылка на свойство, НЕ метод объекта)
+- observable — ПОСЛЕ изменения, нельзя отменить; vetoable — ДО, может запретить (false)
+- Свой делегат: `ReadWriteProperty` с `getValue`/`setValue`
 
 ---
 ## ⏳ ДОПОЛНИТЬ (по мере прохождения моков)
