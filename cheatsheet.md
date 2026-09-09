@@ -115,6 +115,16 @@ catch (e: IOException) { fallback }            // только конкретн�
 - observable — ПОСЛЕ изменения, нельзя отменить; vetoable — ДО, может запретить (false)
 - Свой делегат: `ReadWriteProperty` с `getValue`/`setValue`
 
+## 14 · Dispatchers
+
+- **Default** = CPU-ядер потоков (min 2) — CPU-bound (сортировка, парсинг)
+- **IO** = до **64** потоков — блокирующие сеть/диск/БД
+- **Main** = 1 поток (UI); **Main.immediate** = если уже на main → выполнить ИНЛАЙН без поста в очередь (viewModelScope = Main.immediate)
+- **Unconfined** — resume на «чужом» потоке; только тесты
+- `withContext` = переключение контекста, **НЕ создаёт корутину, НЕ асинхронит** → последовательные withContext = сумма времени; параллельность = `coroutineScope { async/await }`
+- withContext возвращает **последнее выражение лямблы** (пустая → Unit)
+- Default и IO **делят физический пул** (default-слот / blocking-слот у потока) → switch Default→IO часто без смены потока
+
 ## 13 · suspend под капотом (Яндекс любит!)
 
 - **CPS**: `suspend fun getUser(): User` → `fun getUser(c: Continuation<User>): Any?` — скрытый параметр-колбэк; возврат = результат ИЛИ `COROUTINE_SUSPENDED`
