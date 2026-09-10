@@ -115,6 +115,25 @@ catch (e: IOException) { fallback }            // только конкретн�
 - observable — ПОСЛЕ изменения, нельзя отменить; vetoable — ДО, может запретить (false)
 - Свой делегат: `ReadWriteProperty` с `getValue`/`setValue`
 
+## 20 · Compose: remember + side-effects
+
+- **remember** — переживает рекомпозицию (пока функция в композиции); **rememberSaveable** — + Bundle → переживает поворот И смерть процесса
+- `remember { list.size * 2 }` без ключа — **застрянет** при изменении list. Фиксы: без remember (если дёшево) / `remember(ключ)` / `derivedStateOf`
+- **`derivedStateOf`** — производный State с ленивым пересчётом: рекомпозиция только при пересечении порога (`list.size > 10`), не на каждый элемент
+- **`LaunchedEffect(key)`** — 1 раз на вход в композицию (НЕ на рекомпозицию!); перезапуск при смене ключа; **поворот → повтор** (ловушка дублирования аналитики → флаг в VM)
+- **`SideEffect`** — после КАЖДОЙ рекомпозиции (синк не-Compose мира: обновить поле библиотеки)
+- **`DisposableEffect`** — вход + `onDispose` при уходе (подписка/отписка)
+
+## 19 · Compose: recomposition + stability
+
+- **Recomposition** = повторный вызов composable при изменении **State, который функция ЧИТАЛА**
+- **Smart recomposition**: перезапускается МИНИМУМ функций; со stable-неизменными параметрами — **SKIP**
+- **Unstable — это ТИП, не val/var!** `val tags: List<String>` → класс unstable: List — интерфейс без гарантии immutability. Фикс: `ImmutableList` (kotlinx) или `@Immutable`/`@Stable`
+- Unstable-параметр → родитель рекомпознулся → ребёнок НЕ скипнется (даже при равных данных)
+- `key = { it.id }` в items → identity для reorder/анимаций/переиспользования (аналог diffUtil)
+- Лямбда-параметр меняется каждую рекомпозицию → фикс: `remember(onItemClick) { ... }`; свежий компилятор мемоизирует лямбды без unstable-захватов
+- Инструменты: Compose Compiler Metrics (отчёт стабильности), Layout Inspector (recomposition counts)
+
 ## 18 · Flow-буферизация + Channels (экспресс)
 
 - **buffer(n)** — эмиттер и коллектор в разных корутинах: эмит не ждёт коллектора
