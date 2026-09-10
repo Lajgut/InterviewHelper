@@ -115,6 +115,23 @@ catch (e: IOException) { fallback }            // только конкретн�
 - observable — ПОСЛЕ изменения, нельзя отменить; vetoable — ДО, может запретить (false)
 - Свой делегат: `ReadWriteProperty` с `getValue`/`setValue`
 
+## 16 · Exceptions: launch vs async
+
+- **launch**: исключение uncaught → ВВЕРХ (отмена родителя+братьев) → корень → **handler или КРЭШ**
+- **async**: исключение **запечатано в Deferred** → родителя не трогает → бросается **только при `await()`**
+- **await не вызван** → исключение потеряно МОЛЧА (в отдельном scope) — ловушка!
+- **CoroutineExceptionHandler работает ТОЛЬКО на корневом launch** (или в scope). Поставишь в ребёнка — игнор
+- `coroutineScope {}`: ребёнок упал → отмена всех → scope **rethrow'ит первое исключение** наверх
+- `supervisorScope {}`: умирает только упавший ребёнок, сиблинги живут
+
+## 15 · Cancellation
+
+- **Кооперативная** = не убить принудительно; корутина уступает САМА: suspend-точки (delay/yield) проверяют отмену автоматически; CPU-код — `while (isActive)` / `ensureActive()`
+- `while(true)` + чистый CPU без suspend → **никогда не узнает об отмене → зависает**
+- **suspend внутри `finally` → мгновенный CancellationException → чистка недовыполнится**
+- Чинится: `finally { withContext(NonCancellable) { rollback() } }` — очистка/логи при уходе пользователя
+- Отмена: CancellationException — обычное исключение; глотать нельзя (runCatching!), rethrow всегда
+
 ## 14 · Dispatchers
 
 - **Default** = CPU-ядер потоков (min 2) — CPU-bound (сортировка, парсинг)
