@@ -115,6 +115,18 @@ catch (e: IOException) { fallback }            // только конкретн�
 - observable — ПОСЛЕ изменения, нельзя отменить; vetoable — ДО, может запретить (false)
 - Свой делегат: `ReadWriteProperty` с `getValue`/`setValue`
 
+## 21 · Android Core essentials
+
+- **Main = 1 поток**: рисует UI, ивенты. **Looper** крутит MessageQueue (loop()); **Handler** — класть сообщения. Looper есть только у main и HandlerThread
+- **ANR: input 5с / broadcast 10с / service 20с**
+- **postDelayed НИКТО не ждёт** — сообщение лежит в очереди до времени → забытый пост = утечка Activity + крэш. Фикс: `lifecycleScope.launch { delay(); ... }` (авто-отмена) или `removeCallbacksAndMessages(null)` в onDestroy
+- **ViewModel**: переживает конфиг-изменения (ViewModelStore), НЕ переживает process death → **SavedStateHandle**
+- Поворот → VM жива; process death → VM новая + данные из Bundle/SavedStateHandle
+- Утечки (твоя тема!): static Context, слушатели не отписаны, inner non-static, корутины вне scope, Handler-посты → **LeakCanary**, Memory Profiler heap dump
+- Компоненты: Service (started/bound/foreground), BroadcastReceiver, WorkManager (отложенный гарантированный фон) vs AlarmManager
+- Context: Application (живёт вечно, безопасно держать) vs Activity (утечка в singleton!)
+- Холодный старт: зигота → Application.onCreate → Activity — тяжелое в onCreate = тормозит старт (твой кейс 23s→13s!)
+
 ## 20 · Compose: remember + side-effects
 
 - **remember** — переживает рекомпозицию (пока функция в композиции); **rememberSaveable** — + Bundle → переживает поворот И смерть процесса
@@ -199,7 +211,12 @@ catch (e: IOException) { fallback }            // только конкретн�
 - `viewModelScope = SupervisorJob() + Dispatchers.Main.immediate` — одна упавшая корутина не убивает остальные задачи VM
 
 ---
-## ⏳ ДОПОЛНИТЬ (по мере прохождения моков)
-- [ ] Coroutines + Flow — продолжение (вт)
-- [ ] Compose (ср)
-- [ ] Android Core (чт)
+## 🌅 УТРО ПЯТНИЦЫ — порядок повторения (40 мин)
+
+1. Блоки **2 (scope) → 8 (runCatching) → 16 (exceptions)** — твои исторически слабейшие
+2. **19–20 (Compose unstable + LaunchedEffect)** — свежее, может выпасть из головы
+3. **1 (smart cast) + 5 (hashCode)** — повторные провалы дважды
+4. **17 (StateFlow vs SharedFlow)** — топ-1 вероятность вопроса
+5. 21 (Android Core) пробежать глазами
+
+**На интервью:** думать вслух · уточнять условия задачи (null? пустой список?) · после кода самому прогнать тест-кейсы · кейс 23s→13s держать наготове · «не знаю» — честно + рассуждать от принципов
