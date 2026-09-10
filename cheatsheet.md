@@ -115,6 +115,26 @@ catch (e: IOException) { fallback }            // только конкретн�
 - observable — ПОСЛЕ изменения, нельзя отменить; vetoable — ДО, может запретить (false)
 - Свой делегат: `ReadWriteProperty` с `getValue`/`setValue`
 
+## 18 · Flow-буферизация + Channels (экспресс)
+
+- **buffer(n)** — эмиттер и коллектор в разных корутинах: эмит не ждёт коллектора
+- **conflate** — если потребитель не успевает: промежуточные значения СБРАСЫВАЮТСЯ, остаётся последнее (для UI-стейтов)
+- **collectLatest** — при новом значении ОТМЕНЯЕТ выполнение предыдущего коллектора (поиск: старый запрос результатов отменяется)
+- **debounce / distinctUntilChanged** — стандарт для поисковых строк
+- **callbackFlow { }** — обёртка callback-API в Flow (awaitClose { снять listener'а } — обязательно!)
+- **Channel** — очередь между корутинами; RENDEZVOUS (0, ждёт получателя), BUFFERED, CONFLATED. receiveCancellable
+- **Mutex** vs synchronized: lock() — suspend (не блокирует поток); withLock { }
+- **select { }** — ждать первое из нескольких (Channel.onReceive / onTimeout)
+
+## 17 · StateFlow vs SharedFlow (топ-1 вопрос!)
+
+- **StateFlow** = SharedFlow с `replay=1` + **дедупликация** (equals — повтор не доставляется). Обязателен initial value
+- **SharedFlow**: `replay=N` (что получают новые подписчики), `extraBufferCapacity` (буфер эмиттеров), `bufferOverflow` (SUSPEND/DROP_OLDEST/DROP_LATEST)
+- **UI-state → StateFlow; одноразовые события (снекбар, навигация) → SharedFlow(replay=0)**
+- StateFlow для событий = антипаттерн: replay=1 → повторная доставка при пересоздании экрана (та же sticky-болезнь LiveData)
+- Hot = эмитит без подписчиков; новый подписчик StateFlow сразу получает текущее значение
+- Исключение в `viewModelScope.launch` без try → **КРЭШ** (SupervisorJob не разносит отмену, но uncaught летит в дефолтный handler) + вечный isLoading. Фикс: try + rethrow Cancellation + catch Exception → error-state
+
 ## 16 · Exceptions: launch vs async
 
 - **launch**: исключение uncaught → ВВЕРХ (отмена родителя+братьев) → корень → **handler или КРЭШ**

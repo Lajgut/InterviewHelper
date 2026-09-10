@@ -60,11 +60,14 @@
 | 3 | Dispatchers, withContext | 🟡 | Практика СИЛЬНАЯ: «withContext не даёт асинхронности» — ядро понял; async-решение верное (добивка: coroutineScope{}). Теория — дыра: пулы не знает (Default=CPU-ядра, IO=до 64, Main=1), Main.immediate механику не знает (инлайн если уже на main, без поста в очередь; viewModelScope=Main.immediate), Unconfined не знает, пустая лямбда → Unit не знает, Ч4 (Default/IO делят физический пул, слоты, дешёвый switch) не знает. Эталон дан + шпаргалка. **Повторить: размеры пулов + immediate-сценарий** |
 | 4 | Cancellation (cooperative, NonCancellable) | 🟡↓ | Ч2 ✅ вывод кода ТОЧНЫЙ (work 0,1 → finally → done) — интуиция сильная. Но: «кооперативность» не раскрыта (нельзя убить принудительно, корутина уступает САМА: suspend-точки авто-проверяют, CPU-код — isActive/ensureActive); подвох suspend-в-finally не раскрыл; NonCancellable не знает (кейс: очистка/rollback при отмене); Ч4 угадал по сути без объяснения (while(true)+CPU = зависает навсегда). **Повторить: кооперативная = уступает сама; NonCancellable для finally-очистки** |
 | 5 | Exceptions (Handler, launch vs async) | 🟡↓ | Ч3 ✅✅ coroutineScope/supervisorScope — полностью верно (+ добивка: rethrow первого). Ч1 полуверно с перепутыванием: async «передаёт скоупу» — на деле запечатано в Deferred до await(); «async не job» — неверно (Deferred IS Job); ловушка «await не вызван» = молчаливая потеря не знает. Ч2 ❌: сказал «крэшнет» — на деле «caught» напечатается: handler стоит в контексте КОРНЕВОГО launch → работает. Правило «handler только на корне launch» не знает. Эталон + шпаргалка 16. **Повторить: таблицу launch/async + правило handler-на-корне** |
-| 6 | Channels, Select, Mutex | — | |
-| 7 | Flow cold/hot, операторы | — | |
-| 8 | StateFlow vs SharedFlow vs LiveData | — | |
-| 9 | buffer/conflate/collectLatest | — | |
-| 10 | callbackFlow, тестирование | — | |
+| 6 | Channels, Select, Mutex | ⏭️ | Экспресс-режим (дедлайн): мок-вопросы пропущены, краткий эталон в шпаргалке №18 |
+| 7 | Flow cold/hot, операторы | 🟡↑ | Частично закрыт в К6 (hot понял). Операторы/буферизация — шпаргалка №18 (экспресс без мока) |
+| 8 | StateFlow vs SharedFlow vs LiveData | 🟡 | Ч1 база ✅ (default value, хранение последнего, hot) — replay/extraBufferCapacity не знает. Ч2①✅; ②❌ КЛАССИЧЕСКАЯ ОШИБКА: события через StateFlow — а сам же в ③ описал проблему повторной доставки (у StateFlow replay=1 = та же болезнь LiveData) → события = SharedFlow(replay=0); ③✅ sticky LiveData угадал. Ч3 hot ✅ (sticky-старт нового подписчика не уточнил). Ч4: вечный isLoading ✅, но «не упадём» ❌ — УПАДЁМ (SupervisorJob → uncaught → крэш), фикс try+rethrow Cancellation дан. **Повторить: события=SharedFlow(0); StateFlow крэш-кейс** |
+| 9 | buffer/conflate/collectLatest | ⏭️ | Экспресс: эталон в шпаргалке №18 |
+| 10 | callbackFlow, тестирование | ⏭️ | Экспресс: awaitClose в шпаргалке №18 |
+
+> **Секция Coroutines завершена 10.09 (экспресс): 0🟢 · 5🟡 · 1🔴 + 3 темы шпаргалкой.**
+> Итог: практическая интуиция сильная (код-задачи решает), теория под капот — дыры (suspend internals 🔴, dispatchers/handler-правила). Главное к пятнице: блоки шпаргалки 12–18 проговорить вслух.
 
 ## Неделя 3 · Compose
 _ожидает_
