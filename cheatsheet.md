@@ -115,6 +115,18 @@ catch (e: IOException) { fallback }            // только конкретн�
 - observable — ПОСЛЕ изменения, нельзя отменить; vetoable — ДО, может запретить (false)
 - Свой делегат: `ReadWriteProperty` с `getValue`/`setValue`
 
+## 23 · Dagger 2 — фичи
+
+- **Compile-time** кодогенерация → ошибки графа = ошибки компиляции, без рефлексии
+- **`@Component`**: мост к графу (`DaggerXxx` генерится). `dependencies=` — видит только экспортированное родителем
+- **`@Subcomponent`**: наследует ВЕСЬ граф родителя, живёт в его scope (Hilt: ActivityRetained внутри Singleton). vs dependencies: «ребёнок с полным доступом» против «сосед по списку»
+- **`@Scope`**: кеш инстанса в рамках компонента (Singleton = один на компонент; @ActivityScope = на activity). Скопы компонента и провайдера должны совпадать
+- **`@Binds`** (абстрактный, интерфейс→импл, эффективнее) vs **`@Provides`** (с телом, для сторонних: Retrofit/OkHttp)
+- **`@IntoSet` / `@IntoMap` + `@StringKey`/`@ClassKey`**: мульти-биндинги (наборы валидаторов, Map фабрик VM)
+- **`@Assisted` + `@AssistedFactory`**: рантайм-параметры вне графа → `factory.create(id)`. Классика: Worker, VM с аргументом
+- **`@Qualifier`** (типобезопасно) / `@Named("x")`: два биндинга одного типа
+- **`Lazy<T>`** (первый get + кеш) vs **`Provider<T>`** (каждый get → провайдер заново)
+
 ## 22 · Архитектура (Яндекс: «паттерны и принципы»)
 
 - **Ось MVP/MVVM/MVI**: MVP — Presenter держит **ссылку на View**; MVVM — VM **не знает View**, тот наблюдает (Observer); MVI — **единый State-объект** + Intent'ы (View→Intent→Reducer→State→View)
